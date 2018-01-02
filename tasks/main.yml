@@ -12,6 +12,9 @@
 - name: Start the sshguard service
   service: name=sshguard state=restarted
 
+- name: "Ensure sshguard.whitelist is present."
+  command: touch /usr/local/etc/sshguard.whitelist
+
 - name: Copy pf whitelist to sshguard too
   lineinfile: dest=/usr/local/etc/sshguard.whitelist line={{ item }}
     create: yes
