@@ -4,9 +4,13 @@
 ## by: iztehsux@gmail.com
 #
 # Modified for ansible Role by
-# Nicolas Goy <kuon@goyman.com>
+#   Nicolas Goy <kuon@goyman.com>
+# Modified based on rules from
+#   https://content.pivotal.io/blog/a-barebones-pf-ipv6-firewall-ruleset
 ######################################
 
+### packet too big, echo request (ping6)
+icmp6_types="{ 2, 128 }"
 icmp6_types_in = "{ echoreq, unreach, neighbrsol, neighbradv, routeradv }"
 icmp6_types_out = "{ echoreq, unreach, neighbrsol, routersol }"
 
@@ -42,9 +46,6 @@ block in quick on $ext_if from any to 255.255.255.255
 #pass in quick on $ext_if proto tcp from {{ item }} to any port ssh
 #{% endfor %}
 
-### ssh allow dynamic IPs to connect
-pass in quick on $ext_if proto tcp from any to any port ssh
-
 ### block packets claiming to come from reserved internal address blocks, as
 ### they are obviously forged and cannot be contacted from the outside world.
 block in log quick on $ext_if from { 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 255.255.255.255/32 } to any
@@ -75,10 +76,15 @@ pass out on $ext_if inet6 proto { tcp, udp } from any to any keep state
 
 # ICMPv6
 pass out on $ext_if inet6 proto icmp6 all icmp6-type $icmp6_types_out
+pass in on $ext_if inet6 proto ipv6-icmp icmp6-type $icmp6_types keep state
 pass in on $ext_if inet6 proto icmp6 all icmp6-type $icmp6_types_in
 
 ### set a rule that allows inbound ssh traffic with synproxy handshaking.
 pass in on $ext_if proto tcp from any to any port ssh flags S/SA synproxy state
+
+### ssh allow dynamic IPs to connect
+pass in on $ext_if proto tcp from any to any port ssh
+pass in on $ext_if inet6 proto tcp from any to any port ssh
 
 ### custom rules set by ansible
 {% for rule in pf_rules %}
