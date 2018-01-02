@@ -61,6 +61,10 @@
 # connection in a way ansible don't like, so we must close it before
 # pf restarts
 - name: Start the pf service
-  command: service pf restart
-  async: 1
-  poll: 0
+  service:
+    name: pf
+    state: reloaded
+    enabled: yes
+#  command: service pf reload
+#  async: 1
+#  poll: 0
