@@ -22,6 +22,12 @@ ext_ip = "{{ pf_ext_ip }}"
 ### packets are reassembled.
 scrub in on $ext_if all fragment reassemble
 
+### custom translation rules set by ansible
+{% for rule in pf_translations %}
+{{ rule }}
+{% endfor %}
+
+
 ### set a default deny everything policy.
 block all
 
