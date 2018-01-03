@@ -34,7 +34,10 @@ block all
 ### exercise antispoofing on the external interface, but add the local
 ### loopback interface as an exception, to prevent services utilizing the
 ### local loop from being blocked accidentally.
-set skip on lo0
+{% for iface in pf_skip_interfaces %}
+set skip on {{ iface }}
+{% endfor %}
+
 antispoof for $ext_if inet
 
 ### block anything coming from sources that we have no back routes for.

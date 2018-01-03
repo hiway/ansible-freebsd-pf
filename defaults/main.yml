@@ -5,3 +5,4 @@ pf_ext_ip: '{{ ansible_default_ipv4.address }}'
 pf_rules: []
 pf_ssh_whitelist: []
 pf_translations: []
+pf_skip_interfaces: ['lo0']
